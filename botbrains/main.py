@@ -9,7 +9,7 @@ import json
 
 from scoring_engine import rank_opportunities
 from parser import parse_email
-
+from gmail_imap import fetch_gmail_imap
 app = FastAPI()
 
 # =====================================================
@@ -348,3 +348,55 @@ async def upload_pdf(file: UploadFile = File(...)):
             "success": False,
             "message": str(e)
         }
+
+# =====================================================
+# GMAIL IMAP — LOGIN MODEL
+# =====================================================
+
+class GmailLoginRequest(BaseModel):
+    email: str
+    app_password: str
+    max_emails: int = 30
+
+
+# =====================================================
+# FETCH REAL GMAIL VIA IMAP
+# =====================================================
+
+@app.post("/emails/gmail-imap")
+def get_gmail_imap(request: GmailLoginRequest):
+    result = fetch_gmail_imap(
+        gmail_address=request.email,
+        app_password=request.app_password,
+        max_emails=request.max_emails
+    )
+
+    if not result["success"]:
+        return {"success": False, "error": result["error"]}
+
+    raw_emails = result["emails"]
+
+    # ✅ Reuse your existing parse_email() — zero changes
+    parsed_emails = []
+    for raw_email in raw_emails:
+        print(f"Parsing: {raw_email['subject']}")
+        parsed = parse_email(raw_email)
+        parsed_emails.append(parsed)
+
+    return {"success": True, "emails": parsed_emails}
+
+
+# =====================================================
+# CHECK IMAP CONNECTION (optional but useful)
+# =====================================================
+
+@app.post("/emails/gmail-imap/test")
+def test_gmail_connection(request: GmailLoginRequest):
+    import imaplib
+    try:
+        mail = imaplib.IMAP4_SSL("imap.gmail.com")
+        mail.login(request.email, request.app_password)
+        mail.logout()
+        return {"success": True, "message": "Connected successfully!"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}

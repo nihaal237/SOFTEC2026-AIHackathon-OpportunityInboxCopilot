@@ -300,20 +300,71 @@ const Emails = () => {
   const [rankedData, setRankedData]       = useState(null);
   const [selectedResult, setSelectedResult]   = useState(null);
   const [selectedFile, setSelectedFile]   = useState(null);
-
+  const [gmailConnected, setGmailConnected] = useState(false);
+const [gmailCreds, setGmailCreds]         = useState({ email: "", app_password: "" });
+const [showGmailModal, setShowGmailModal] = useState(false);
+const [gmailLoading, setGmailLoading]     = useState(false);
+const [gmailError, setGmailError]         = useState("");
   useEffect(() => {
     fetch("http://127.0.0.1:8000/students")
       .then(r => r.json()).then(setProfiles).catch(console.log);
   }, []);
 
   const loadEmails = async (profile) => {
-    try {
-      const data = await fetch("http://127.0.0.1:8000/emails").then(r => r.json());
-      setSelectedProfile(profile); setEmails(data);
-      setSelectedEmails([]); setPreviewEmail(null); setStep(2);
-    } catch (e) { console.log(e); }
-  };
+  try {
+    let data;
+    if (gmailConnected) {
+      // Use real Gmail
+      const res = await fetch("http://127.0.0.1:8000/emails/gmail-imap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: gmailCreds.email,
+          app_password: gmailCreds.app_password,
+          max_emails: 30
+        })
+      }).then(r => r.json());
 
+      if (!res.success) { alert("Gmail error: " + res.error); return; }
+      data = res.emails;
+    } else {
+      // Fall back to your existing hardcoded JSON
+      data = await fetch("http://127.0.0.1:8000/emails").then(r => r.json());
+    }
+
+    setSelectedProfile(profile);
+    setEmails(data);
+    setSelectedEmails([]);
+    setPreviewEmail(null);
+    setStep(2);
+  } catch (e) { console.log(e); }
+};
+
+  const loadGmailEmails = async () => {
+  try {
+    const res = await fetch("http://127.0.0.1:8000/emails/gmail-imap", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: gmailCreds.email,
+        app_password: gmailCreds.app_password,
+        max_emails: 30
+      })
+    }).then(r => r.json());
+
+    if (!res.success) {
+      alert("Gmail error: " + res.error);
+      return;
+    }
+
+    setEmails(res.emails);
+    setSelectedEmails([]);
+    setPreviewEmail(null);
+    setStep(2); // go directly to inbox view
+  } catch (e) {
+    console.log(e);
+  }
+};
   const toggleEmail = (id, isOpportunity) => {
     if (!isOpportunity) return;
     if (selectedEmails.includes(id)) {
@@ -323,7 +374,31 @@ const Emails = () => {
       else alert("Maximum 15 emails allowed");
     }
   };
+  const handleGmailConnect = async () => {
+  setGmailError("");
+  setGmailLoading(true);
+  try {
+    const res = await fetch("http://127.0.0.1:8000/emails/gmail-imap/test", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(gmailCreds)
+    }).then(r => r.json());
 
+    if (res.success) {
+  setGmailConnected(true);
+  setShowGmailModal(false);
+
+  // 👇 AUTO LOAD REAL EMAILS IMMEDIATELY
+  await loadGmailEmails();
+}
+else {
+      setGmailError(res.error || "Connection failed");
+    }
+  } catch {
+    setGmailError("Could not reach server");
+  }
+  setGmailLoading(false);
+};
   const handleFileChange = (e) => { const f = e.target.files[0]; if (f) setSelectedFile(f); };
 
   const handlePdfUpload = async () => {
@@ -384,6 +459,90 @@ const Emails = () => {
       <Topbar />
       <div className="s1-wrap">
         <div className="s1-hero">
+          {/* Gmail Connect Bar */}
+<div style={{
+  display: "flex", alignItems: "center", gap: 12,
+  background: "var(--card)", border: "1px solid var(--border)",
+  borderRadius: 10, padding: "12px 20px", marginBottom: 32
+}}>
+  <div style={{ flex: 1 }}>
+    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>
+      {gmailConnected ? `✅ Gmail connected — ${gmailCreds.email}` : "Connect your Gmail account"}
+    </div>
+    <div style={{ fontSize: 12, color: "var(--text-2)", marginTop: 2 }}>
+      {gmailConnected ? "Real emails will be fetched when you select a profile." : "Use real inbox emails instead of sample data."}
+    </div>
+  </div>
+  {gmailConnected
+    ? <button className="btn btn-danger" onClick={() => { setGmailConnected(false); setGmailCreds({ email: "", app_password: "" }); }}>Disconnect</button>
+    : <button className="btn btn-outline" onClick={() => setShowGmailModal(true)}>Connect Gmail</button>
+  }
+</div>
+
+{/* Gmail Modal */}
+{showGmailModal && (
+  <div style={{
+    position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)",
+    display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999
+  }}>
+    <div style={{
+      background: "var(--card)", border: "1px solid var(--border-hi)",
+      borderRadius: 14, padding: 32, width: 420
+    }}>
+      <div style={{ fontSize: 17, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>Connect Gmail</div>
+      <div style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 24, lineHeight: 1.7 }}>
+        Enter your Gmail address and an App Password.<br />
+        <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer"
+          style={{ color: "var(--accent)" }}>Generate an App Password here →</a>
+      </div>
+
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: ".08em" }}>Gmail Address</div>
+        <input
+          type="email"
+          placeholder="you@gmail.com"
+          value={gmailCreds.email}
+          onChange={e => setGmailCreds({ ...gmailCreds, email: e.target.value })}
+          style={{
+            width: "100%", background: "var(--surface)", border: "1px solid var(--border-hi)",
+            borderRadius: 7, padding: "10px 14px", color: "var(--text)", fontSize: 13, outline: "none"
+          }}
+        />
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: ".08em" }}>App Password</div>
+        <input
+          type="password"
+          placeholder="xxxx xxxx xxxx xxxx"
+          value={gmailCreds.app_password}
+          onChange={e => setGmailCreds({ ...gmailCreds, app_password: e.target.value })}
+          style={{
+            width: "100%", background: "var(--surface)", border: "1px solid var(--border-hi)",
+            borderRadius: 7, padding: "10px 14px", color: "var(--text)", fontSize: 13, outline: "none"
+          }}
+        />
+      </div>
+
+      {gmailError && (
+        <div style={{ background: "rgba(244,63,94,.1)", border: "1px solid rgba(244,63,94,.3)", borderRadius: 7, padding: "10px 14px", fontSize: 12, color: "var(--danger)", marginBottom: 16 }}>
+          ⚠ {gmailError}
+        </div>
+      )}
+
+      <div style={{ display: "flex", gap: 10 }}>
+        <button className="btn btn-ghost" style={{ flex: 1, justifyContent: "center" }}
+          onClick={() => { setShowGmailModal(false); setGmailError(""); }}>
+          Cancel
+        </button>
+        <button className="btn btn-primary" style={{ flex: 1, justifyContent: "center" }}
+          onClick={handleGmailConnect} disabled={gmailLoading || !gmailCreds.email || !gmailCreds.app_password}>
+          {gmailLoading ? "Connecting…" : "Connect →"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
           <h1>Opportunity<br /><span>Inbox Copilot</span></h1>
           <p>Select a student profile to scan and rank opportunity emails with AI-powered precision.</p>
         </div>

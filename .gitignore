@@ -22,4 +22,17 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.env
+# sensitive data
+*.env
+email.json
+parsed_emails.json
+students.json
+
+# python
+__pycache__/
+*.pyc
+
+# node
+node_modules/
+build/
+dist/
