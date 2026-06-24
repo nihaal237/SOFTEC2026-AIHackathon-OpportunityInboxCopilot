@@ -1,6 +1,6 @@
 // Emails.jsx
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 // ─── Inject Styles ────────────────────────────────────────────────────────────
 const injectStyles = () => {
@@ -90,6 +90,50 @@ const injectStyles = () => {
     .tag-warn  { background: rgba(245,158,11,.1); color: var(--warn); }
     .tag-gray  { background: rgba(255,255,255,.05); color: var(--text-2); }
 
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 500; backdrop-filter: blur(4px);
+    }
+    .modal-box {
+      background: var(--card); border: 1px solid var(--border-hi);
+      border-radius: 14px; padding: 32px; width: 420px; max-width: 90vw;
+    }
+    .modal-box h2 {
+      font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700;
+      color: var(--text); margin-bottom: 6px;
+    }
+    .modal-box p { font-size: 13px; color: var(--text-2); margin-bottom: 24px; line-height: 1.7; }
+    .modal-field { margin-bottom: 16px; }
+    .modal-label {
+      display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--text-3); margin-bottom: 6px; font-family: 'Space Mono', monospace;
+    }
+    .modal-input {
+      width: 100%; background: var(--surface); border: 1px solid var(--border-hi);
+      border-radius: 7px; padding: 10px 14px; color: var(--text); font-size: 13px;
+      font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .15s;
+    }
+    .modal-input:focus { border-color: var(--accent); }
+    .modal-error { font-size: 12px; color: var(--danger); margin-bottom: 16px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+
+    /* ── Loading overlay ── */
+    .loading-overlay {
+      position: fixed; inset: 0; background: rgba(8,10,13,.85);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 600; gap: 16px;
+    }
+    .spinner {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 3px solid var(--border-hi);
+      border-top-color: var(--accent);
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 14px; color: var(--text-2); font-family: 'Space Mono', monospace; }
+
     /* ══════════════════════════════ STEP 1 ══════════════════════════════ */
     .s1-wrap { max-width: 900px; margin: 0 auto; padding: 56px 24px; }
     .s1-hero { margin-bottom: 48px; }
@@ -100,26 +144,25 @@ const injectStyles = () => {
     }
     .s1-hero h1 span { color: var(--accent); }
     .s1-hero p { color: var(--text-2); font-size: 14px; line-height: 1.8; max-width: 480px; }
-    .s1-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 14px; }
 
     .profile-card {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 22px; cursor: pointer;
-      transition: border-color .15s, transform .15s;
+      border-radius: 12px; padding: 28px;
     }
-    .profile-card:hover { border-color: var(--accent); transform: translateY(-1px); }
-    .pc-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
     .pc-name { font-size: 17px; font-weight: 700; color: var(--text); }
-    .pc-degree { font-size: 12px; color: var(--accent); margin-bottom: 14px; font-weight: 500; }
-    .pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-    .pc-field { background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 8px 12px; }
-    .pc-label { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); margin-bottom: 2px; font-family: 'Space Mono', monospace; }
-    .pc-val { font-size: 12px; color: var(--text); font-weight: 500; }
+    .pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .pc-field { background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 10px 14px; }
+    .pc-label { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); margin-bottom: 4px; font-family: 'Space Mono', monospace; }
+    .pc-input {
+      width: 100%; background: transparent; border: none; outline: none;
+      color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif;
+    }
+    .pc-input::placeholder { color: var(--text-3); }
     .pc-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pc-section { margin-bottom: 20px; }
 
     /* ══════════════════════════════ STEP 2 ══════════════════════════════ */
     .s2-layout { display: flex; height: calc(100vh - 56px); }
-
     .s2-sidebar {
       width: 370px; flex-shrink: 0;
       background: var(--surface); border-right: 1px solid var(--border);
@@ -129,41 +172,23 @@ const injectStyles = () => {
     .sb-header h2 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; text-transform: uppercase; letter-spacing: .06em; font-family: 'Space Mono', monospace; }
     .sb-header p { font-size: 12px; color: var(--text-2); }
 
-    .upload-zone {
-      margin: 14px 16px;
-      border: 1.5px dashed var(--border-hi); border-radius: 10px;
-      padding: 16px; text-align: center; transition: border-color .15s;
-      background: rgba(0,0,0,.2);
-    }
-    .upload-zone:hover { border-color: var(--accent); }
-    .upload-zone p { font-size: 12px; color: var(--text-2); margin-bottom: 10px; }
-    .upload-zone input[type="file"] { display: none; }
-    .file-label {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; font-weight: 500; color: var(--accent);
-      cursor: pointer; border: 1px solid rgba(0,212,170,.3);
-      padding: 6px 14px; border-radius: 6px; transition: background .15s;
-    }
-    .file-label:hover { background: rgba(0,212,170,.08); }
-    .file-name { font-size: 11px; color: var(--text-2); margin-top: 8px; font-family: 'Space Mono', monospace; }
-
     .email-scroll { flex: 1; overflow-y: auto; padding: 8px; }
     .email-scroll::-webkit-scrollbar { width: 3px; }
     .email-scroll::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
 
     .email-row {
       display: flex; align-items: flex-start; gap: 10px;
-      padding: 12px 12px; border-radius: 8px; cursor: pointer; margin-bottom: 4px;
+      padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 4px;
       border: 1px solid transparent; transition: all .12s;
     }
     .email-row:hover { background: var(--card); border-color: var(--border); }
     .email-row.is-active { background: var(--card); border-color: var(--border-hi); }
     .email-row.is-selected { border-color: var(--accent); background: rgba(0,212,170,.04); }
-    .email-row.is-spam { opacity: .5; }
+    .email-row.is-spam { opacity: .45; }
 
     .e-check {
       width: 17px; height: 17px; border-radius: 4px; flex-shrink: 0;
-      border: 1.5px solid var(--border-hi); margin-top: 1px;
+      border: 1.5px solid var(--border-hi); margin-top: 2px;
       display: flex; align-items: center; justify-content: center;
       transition: all .15s; cursor: pointer;
     }
@@ -179,7 +204,6 @@ const injectStyles = () => {
     .progress-track { height: 3px; background: var(--border); border-radius: 2px; margin-bottom: 12px; }
     .progress-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width .3s; }
 
-    /* Preview pane */
     .preview-pane { flex: 1; overflow-y: auto; padding: 36px 40px; }
     .preview-pane::-webkit-scrollbar { width: 3px; }
     .preview-pane::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
@@ -187,15 +211,12 @@ const injectStyles = () => {
     .preview-empty svg { opacity: .15; }
     .preview-empty p { font-size: 13px; }
 
-    .spam-bar { background: rgba(244,63,94,.07); border: 1px solid rgba(244,63,94,.2); border-radius: 8px; padding: 11px 16px; font-size: 13px; color: var(--danger); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
     .prev-title { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 12px; line-height: 1.4; }
     .prev-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
-    .prev-body { font-size: 13px; color: #94a3b8; line-height: 1.95; white-space: pre-wrap; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
-    .prev-actions { margin-top: 20px; display: flex; gap: 10px; }
+    .prev-body { font-size: 13px; color: var(--text-2); line-height: 1.95; white-space: pre-wrap; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; }
 
     /* ══════════════════════════════ STEP 3 ══════════════════════════════ */
     .s3-layout { display: flex; height: calc(100vh - 56px); }
-
     .s3-sidebar {
       width: 380px; flex-shrink: 0;
       background: var(--surface); border-right: 1px solid var(--border);
@@ -223,7 +244,6 @@ const injectStyles = () => {
     .score-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--blue)); }
     .score-num { font-size: 10px; color: var(--text-2); font-family: 'Space Mono', monospace; min-width: 28px; text-align: right; }
 
-    /* Detail pane */
     .detail-pane { flex: 1; overflow-y: auto; padding: 40px 48px; }
     .detail-pane::-webkit-scrollbar { width: 3px; }
     .detail-pane::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
@@ -247,387 +267,381 @@ const injectStyles = () => {
     .reason-list, .check-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
     .reason-item { display: flex; gap: 12px; align-items: flex-start; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 13px 16px; font-size: 13px; color: var(--text-2); line-height: 1.7; }
     .r-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; }
+    .warn-item { display: flex; gap: 12px; align-items: flex-start; background: rgba(244,63,94,.06); border: 1px solid rgba(244,63,94,.2); border-radius: 8px; padding: 13px 16px; font-size: 13px; color: var(--danger); line-height: 1.7; }
     .check-item { display: flex; gap: 12px; align-items: flex-start; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 13px 16px; font-size: 13px; color: var(--text-2); line-height: 1.7; }
     .c-icon { color: var(--accent); flex-shrink: 0; font-size: 15px; margin-top: 1px; }
   `;
   document.head.appendChild(style);
 };
 
-// ─── SVG Icons ────────────────────────────────────────────────────────────────
+// ─── Icons ────────────────────────────────────────────────────────────────────
 const Tick = () => (
   <svg viewBox="0 0 12 12" fill="none" stroke="#000" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="2,6 5,9 10,3" />
   </svg>
 );
-const Back = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
-  </svg>
-);
+
 const MailIcon = () => (
   <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
     <polyline points="22,6 12,13 2,6"/>
   </svg>
 );
-const UploadIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-    <polyline points="17 8 12 3 7 8"/>
-    <line x1="12" y1="3" x2="12" y2="15"/>
-  </svg>
-);
 
 // ─── Priority helpers ─────────────────────────────────────────────────────────
-const priorityTag = (p = "") => {
+const priorityTagClass = (p = "") => {
   const l = p.toLowerCase();
-  if (l.includes("high") || l.includes("critical")) return "tag-red";
-  if (l.includes("medium")) return "tag-warn";
+  if (l.includes("now")) return "tag-red";
+  if (l.includes("soon")) return "tag-warn";
   return "tag-gray";
 };
+
 const rankClass = (i) => i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "";
 
+// ─── Stepper ──────────────────────────────────────────────────────────────────
+const Stepper = ({ step }) => (
+  <div className="stepper">
+    {["Setup", "Review", "Ranked"].map((label, i) => {
+      const n = i + 1;
+      const state = step > n ? "done" : step === n ? "active" : "";
+      return (
+        <React.Fragment key={n}>
+          {i > 0 && <div className="step-line" />}
+          <div className={`step-item ${state}`}>
+            <div className="step-dot">{step > n ? "✓" : n}</div>
+            {label}
+          </div>
+        </React.Fragment>
+      );
+    })}
+  </div>
+);
+
+// ─── Topbar ───────────────────────────────────────────────────────────────────
+const Topbar = ({ step, onBack }) => (
+  <div className="topbar">
+    <div className="logo">Inbox<em> copilot</em></div>
+    <Stepper step={step} />
+    <div className="topbar-right">
+      {step > 1 && (
+        <button className="btn btn-ghost" onClick={onBack}>← Back</button>
+      )}
+    </div>
+  </div>
+);
+
+// ─── Gmail Modal ──────────────────────────────────────────────────────────────
+const GmailModal = ({ onClose, onSuccess }) => {
+  const [creds, setCreds] = useState({ email: "", app_password: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleConnect = async () => {
+    if (!creds.email || !creds.app_password) {
+      setError("Both fields are required.");
+      return;
+    }
+    setError("");
+    setLoading(true);
+
+    try {
+      // 1. Test connection
+      const testRes = await fetch("http://127.0.0.1:8000/emails/gmail-imap/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(creds)
+      }).then(r => r.json());
+
+      if (!testRes.success) {
+        setError(testRes.error || "Connection failed. Check credentials.");
+        setLoading(false);
+        return;
+      }
+
+      // 2. Fetch emails
+      const emailRes = await fetch("http://127.0.0.1:8000/emails/gmail-imap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...creds, max_emails: 15 })
+      }).then(r => r.json());
+
+      if (!emailRes.success) {
+        setError(emailRes.error || "Failed to fetch emails.");
+        setLoading(false);
+        return;
+      }
+
+      onSuccess(emailRes.emails);
+    } catch (err) {
+      setError("Cannot reach the backend server. Is it running?");
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="modal-box">
+        <h2>Connect Gmail</h2>
+        <p>
+          Use an <strong style={{ color: "var(--accent)" }}>App Password</strong>, not your regular Gmail password.
+          Go to Google Account → Security → 2-Step Verification → App passwords.
+        </p>
+
+        <div className="modal-field">
+          <label className="modal-label">Gmail Address</label>
+          <input
+            className="modal-input"
+            type="email"
+            placeholder="you@gmail.com"
+            value={creds.email}
+            onChange={e => setCreds({ ...creds, email: e.target.value })}
+          />
+        </div>
+
+        <div className="modal-field">
+          <label className="modal-label">App Password</label>
+          <input
+            className="modal-input"
+            type="password"
+            placeholder="xxxx xxxx xxxx xxxx"
+            value={creds.app_password}
+            onChange={e => setCreds({ ...creds, app_password: e.target.value })}
+          />
+        </div>
+
+        {error && <div className="modal-error">⚠ {error}</div>}
+
+        <div className="modal-actions">
+          <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+          <button className="btn btn-primary" onClick={handleConnect} disabled={loading}>
+            {loading ? "Connecting…" : "Connect & Fetch →"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Loading Overlay ──────────────────────────────────────────────────────────
+const LoadingOverlay = ({ message }) => (
+  <div className="loading-overlay">
+    <div className="spinner" />
+    <div className="loading-text">{message}</div>
+  </div>
+);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Main Component
 // ═══════════════════════════════════════════════════════════════════════════════
 const Emails = () => {
   injectStyles();
 
-  const [step, setStep]                   = useState(1);
-  const [profiles, setProfiles]           = useState([]);
-  const [emails, setEmails]               = useState([]);
-  const [selectedProfile, setSelectedProfile] = useState(null);
-  const [selectedEmails, setSelectedEmails]   = useState([]);
-  const [previewEmail, setPreviewEmail]   = useState(null);
-  const [rankedData, setRankedData]       = useState(null);
-  const [selectedResult, setSelectedResult]   = useState(null);
-  const [selectedFile, setSelectedFile]   = useState(null);
-  const [gmailConnected, setGmailConnected] = useState(false);
-const [gmailCreds, setGmailCreds]         = useState({ email: "", app_password: "" });
-const [showGmailModal, setShowGmailModal] = useState(false);
-const [gmailLoading, setGmailLoading]     = useState(false);
-const [gmailError, setGmailError]         = useState("");
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/students")
-      .then(r => r.json()).then(setProfiles).catch(console.log);
-  }, []);
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [loadingMsg, setLoadingMsg] = useState("");
 
-  const loadEmails = async (profile) => {
-  try {
-    let data;
-    if (gmailConnected) {
-      // Use real Gmail
-      const res = await fetch("http://127.0.0.1:8000/emails/gmail-imap", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: gmailCreds.email,
-          app_password: gmailCreds.app_password,
-          max_emails: 30
-        })
-      }).then(r => r.json());
+  const [emails, setEmails] = useState([]);
+  const [selectedEmails, setSelectedEmails] = useState([]);
+  const [previewEmail, setPreviewEmail] = useState(null);
 
-      if (!res.success) { alert("Gmail error: " + res.error); return; }
-      data = res.emails;
-    } else {
-      // Fall back to your existing hardcoded JSON
-      data = await fetch("http://127.0.0.1:8000/emails").then(r => r.json());
-    }
+  const [rankedData, setRankedData] = useState(null);
+  const [selectedResult, setSelectedResult] = useState(null);
 
-    setSelectedProfile(profile);
-    setEmails(data);
-    setSelectedEmails([]);
-    setPreviewEmail(null);
-    setStep(2);
-  } catch (e) { console.log(e); }
-};
+  const [showGmailModal, setShowGmailModal] = useState(false);
 
-  const loadGmailEmails = async () => {
-  try {
-    const res = await fetch("http://127.0.0.1:8000/emails/gmail-imap", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: gmailCreds.email,
-        app_password: gmailCreds.app_password,
-        max_emails: 30
-      })
-    }).then(r => r.json());
+  const [preferences, setPreferences] = useState({
+    cgpa: "",
+    skills: "",
+    preferred_types: [],
+    location_preference: "",
+    financial_need: false
+  });
 
-    if (!res.success) {
-      alert("Gmail error: " + res.error);
-      return;
-    }
+  const opportunityTypes = [
+    "Internship", "Scholarship", "Competition", "Fellowship",
+    "Exchange Program", "Research Assistant", "Volunteer",
+    "Ambassador Program", "Programming Contest", "Admission"
+  ];
 
-    setEmails(res.emails);
-    setSelectedEmails([]);
-    setPreviewEmail(null);
-    setStep(2); // go directly to inbox view
-  } catch (e) {
-    console.log(e);
-  }
-};
+  const toggleType = (type) => {
+    const sel = preferences.preferred_types;
+    setPreferences({
+      ...preferences,
+      preferred_types: sel.includes(type) ? sel.filter(x => x !== type) : [...sel, type]
+    });
+  };
+
   const toggleEmail = (id, isOpportunity) => {
     if (!isOpportunity) return;
     if (selectedEmails.includes(id)) {
       setSelectedEmails(selectedEmails.filter(i => i !== id));
-    } else {
-      if (selectedEmails.length < 15) setSelectedEmails([...selectedEmails, id]);
-      else alert("Maximum 15 emails allowed");
+    } else if (selectedEmails.length < 15) {
+      setSelectedEmails([...selectedEmails, id]);
     }
   };
-  const handleGmailConnect = async () => {
-  setGmailError("");
-  setGmailLoading(true);
-  try {
-    const res = await fetch("http://127.0.0.1:8000/emails/gmail-imap/test", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(gmailCreds)
-    }).then(r => r.json());
 
-    if (res.success) {
-  setGmailConnected(true);
-  setShowGmailModal(false);
-
-  // 👇 AUTO LOAD REAL EMAILS IMMEDIATELY
-  await loadGmailEmails();
-}
-else {
-      setGmailError(res.error || "Connection failed");
-    }
-  } catch {
-    setGmailError("Could not reach server");
-  }
-  setGmailLoading(false);
-};
-  const handleFileChange = (e) => { const f = e.target.files[0]; if (f) setSelectedFile(f); };
-
-  const handlePdfUpload = async () => {
-    if (!selectedFile) { alert("Please select a PDF first"); return; }
-    const fd = new FormData(); fd.append("file", selectedFile);
-    try {
-      const data = await fetch("http://127.0.0.1:8000/upload-pdf", { method: "POST", body: fd }).then(r => r.json());
-      if (data.success) {
-        alert("PDF uploaded and parsed successfully");
-        setSelectedFile(null);
-        if (selectedProfile) loadEmails(selectedProfile);
-      } else { alert(data.message); }
-    } catch { alert("Upload failed"); }
+  const handleGmailSuccess = (fetchedEmails) => {
+    setEmails(fetchedEmails);
+    setShowGmailModal(false);
+    setStep(2);
   };
 
   const handleRank = async () => {
-    if (!selectedProfile) { alert("Please select a student first"); return; }
-    if (selectedEmails.length < 5) { alert("Please select at least 5 emails"); return; }
+    setLoading(true);
+    setLoadingMsg("Ranking opportunities…");
+
+    const payload = {
+      student: {
+        cgpa: parseFloat(preferences.cgpa) || 0,
+        skills: preferences.skills.split(",").map(s => s.trim()).filter(Boolean),
+        preferred_types: preferences.preferred_types,
+        location_preference: preferences.location_preference,
+        financial_need: preferences.financial_need
+      },
+      selected_emails: emails.filter(e => selectedEmails.includes(e.id))
+    };
+
     try {
-      const data = await fetch("http://127.0.0.1:8000/rank", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ student_id: selectedProfile.id, selected_email_ids: selectedEmails })
+      const res = await fetch("http://127.0.0.1:8000/rank", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       }).then(r => r.json());
-      setRankedData(data); setSelectedResult(null); setStep(3);
-    } catch (e) { console.log(e); }
+
+      if (res.success) {
+        setRankedData(res);
+        setStep(3);
+      } else {
+        alert("Ranking failed: " + res.error);
+      }
+    } catch (err) {
+      alert("Cannot reach backend. Is it running?");
+    }
+
+    setLoading(false);
   };
 
-  // ── Stepper ──────────────────────────────────────────────────────────────────
-  const Stepper = () => (
-    <div className="stepper">
-      {[["1","Profiles"],["2","Emails"],["3","Rankings"]].map(([n, label], i) => {
-        const num = +n;
-        const cls = step > num ? "done" : step === num ? "active" : "";
-        return (
-          <React.Fragment key={n}>
-            {i > 0 && <div className="step-line" />}
-            <div className={`step-item ${cls}`}>
-              <div className="step-dot">{step > num ? "✓" : n}</div>
-              <span>{label}</span>
-            </div>
-          </React.Fragment>
-        );
-      })}
-    </div>
-  );
-
-  const Topbar = ({ children }) => (
-    <div className="topbar">
-      <div className="logo">Inbox<em>Copilot</em></div>
-      {children}
-      <div className="topbar-right"><Stepper /></div>
-    </div>
-  );
-
-  // ══════════════════════════════ STEP 1 ══════════════════════════════
+  // ── STEP 1 ─────────────────────────────────────────────────────────────────
   if (step === 1) return (
-    <div>
-      <Topbar />
+    <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
+      <Topbar step={1} />
+      {showGmailModal && (
+        <GmailModal
+          onClose={() => setShowGmailModal(false)}
+          onSuccess={handleGmailSuccess}
+        />
+      )}
+      {loading && <LoadingOverlay message={loadingMsg} />}
+
       <div className="s1-wrap">
         <div className="s1-hero">
-          {/* Gmail Connect Bar */}
-<div style={{
-  display: "flex", alignItems: "center", gap: 12,
-  background: "var(--card)", border: "1px solid var(--border)",
-  borderRadius: 10, padding: "12px 20px", marginBottom: 32
-}}>
-  <div style={{ flex: 1 }}>
-    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>
-      {gmailConnected ? `✅ Gmail connected — ${gmailCreds.email}` : "Connect your Gmail account"}
-    </div>
-    <div style={{ fontSize: 12, color: "var(--text-2)", marginTop: 2 }}>
-      {gmailConnected ? "Real emails will be fetched when you select a profile." : "Use real inbox emails instead of sample data."}
-    </div>
-  </div>
-  {gmailConnected
-    ? <button className="btn btn-danger" onClick={() => { setGmailConnected(false); setGmailCreds({ email: "", app_password: "" }); }}>Disconnect</button>
-    : <button className="btn btn-outline" onClick={() => setShowGmailModal(true)}>Connect Gmail</button>
-  }
-</div>
-
-{/* Gmail Modal */}
-{showGmailModal && (
-  <div style={{
-    position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)",
-    display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999
-  }}>
-    <div style={{
-      background: "var(--card)", border: "1px solid var(--border-hi)",
-      borderRadius: 14, padding: 32, width: 420
-    }}>
-      <div style={{ fontSize: 17, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>Connect Gmail</div>
-      <div style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 24, lineHeight: 1.7 }}>
-        Enter your Gmail address and an App Password.<br />
-        <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer"
-          style={{ color: "var(--accent)" }}>Generate an App Password here →</a>
-      </div>
-
-      <div style={{ marginBottom: 14 }}>
-        <div style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: ".08em" }}>Gmail Address</div>
-        <input
-          type="email"
-          placeholder="you@gmail.com"
-          value={gmailCreds.email}
-          onChange={e => setGmailCreds({ ...gmailCreds, email: e.target.value })}
-          style={{
-            width: "100%", background: "var(--surface)", border: "1px solid var(--border-hi)",
-            borderRadius: 7, padding: "10px 14px", color: "var(--text)", fontSize: 13, outline: "none"
-          }}
-        />
-      </div>
-
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, color: "var(--text-3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: ".08em" }}>App Password</div>
-        <input
-          type="password"
-          placeholder="xxxx xxxx xxxx xxxx"
-          value={gmailCreds.app_password}
-          onChange={e => setGmailCreds({ ...gmailCreds, app_password: e.target.value })}
-          style={{
-            width: "100%", background: "var(--surface)", border: "1px solid var(--border-hi)",
-            borderRadius: 7, padding: "10px 14px", color: "var(--text)", fontSize: 13, outline: "none"
-          }}
-        />
-      </div>
-
-      {gmailError && (
-        <div style={{ background: "rgba(244,63,94,.1)", border: "1px solid rgba(244,63,94,.3)", borderRadius: 7, padding: "10px 14px", fontSize: 12, color: "var(--danger)", marginBottom: 16 }}>
-          ⚠ {gmailError}
-        </div>
-      )}
-
-      <div style={{ display: "flex", gap: 10 }}>
-        <button className="btn btn-ghost" style={{ flex: 1, justifyContent: "center" }}
-          onClick={() => { setShowGmailModal(false); setGmailError(""); }}>
-          Cancel
-        </button>
-        <button className="btn btn-primary" style={{ flex: 1, justifyContent: "center" }}
-          onClick={handleGmailConnect} disabled={gmailLoading || !gmailCreds.email || !gmailCreds.app_password}>
-          {gmailLoading ? "Connecting…" : "Connect →"}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
           <h1>Opportunity<br /><span>Inbox Copilot</span></h1>
-          <p>Select a student profile to scan and rank opportunity emails with AI-powered precision.</p>
+          <p>Connect your Gmail and set your preferences. The AI will scan your inbox, identify opportunities, and rank them for you.</p>
         </div>
-        <div className="s1-grid">
-          {profiles.map(p => (
-            <div key={p.id} className="profile-card" onClick={() => loadEmails(p)}>
-              <div className="pc-head">
-                <div className="pc-name">{p.name}</div>
-                <span className="tag tag-gray" style={{fontFamily:"Space Mono",fontSize:9}}>ID {p.id}</span>
-              </div>
-              <div className="pc-degree">{p.degree} · Sem {p.semester}</div>
-              <div className="pc-grid">
-                <div className="pc-field">
-                  <div className="pc-label">CGPA</div>
-                  <div className="pc-val">{p.cgpa}</div>
-                </div>
-                <div className="pc-field">
-                  <div className="pc-label">Location</div>
-                  <div className="pc-val">{p.location_preference || "—"}</div>
-                </div>
-                <div className="pc-field">
-                  <div className="pc-label">Experience</div>
-                  <div className="pc-val">{p.experience_level || "—"}</div>
-                </div>
-                <div className="pc-field">
-                  <div className="pc-label">Financial Need</div>
-                  <div className="pc-val">{p.financial_need ? "Yes" : "No"}</div>
-                </div>
-              </div>
-              <div className="pc-tags">
-                {p.preferred_types?.map(t => <span key={t} className="tag tag-blue">{t}</span>)}
-                {p.skills?.slice(0,4).map(s => <span key={s} className="tag tag-gray">{s}</span>)}
-              </div>
+
+        <div className="profile-card">
+          <div className="pc-name" style={{ marginBottom: 24 }}>Student Preferences</div>
+
+          <div className="pc-grid">
+            <div className="pc-field">
+              <div className="pc-label">CGPA</div>
+              <input
+                className="pc-input"
+                type="number"
+                step="0.01"
+                min="0"
+                max="4"
+                placeholder="3.50"
+                value={preferences.cgpa}
+                onChange={e => setPreferences({ ...preferences, cgpa: e.target.value })}
+              />
             </div>
-          ))}
+            <div className="pc-field">
+              <div className="pc-label">Location Preference</div>
+              <input
+                className="pc-input"
+                placeholder="e.g. Pakistan, Remote"
+                value={preferences.location_preference}
+                onChange={e => setPreferences({ ...preferences, location_preference: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="pc-section">
+            <div className="pc-field">
+              <div className="pc-label">Skills (comma separated)</div>
+              <input
+                className="pc-input"
+                placeholder="React, Python, Machine Learning"
+                value={preferences.skills}
+                onChange={e => setPreferences({ ...preferences, skills: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="pc-section">
+            <div className="pc-label" style={{ marginBottom: 10 }}>Preferred Opportunity Types</div>
+            <div className="pc-tags">
+              {opportunityTypes.map(type => (
+                <span
+                  key={type}
+                  className={`tag ${preferences.preferred_types.includes(type) ? "tag-green" : "tag-gray"}`}
+                  style={{ cursor: "pointer", padding: "5px 12px", fontSize: 11 }}
+                  onClick={() => toggleType(type)}
+                >
+                  {type}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="pc-section">
+            <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={preferences.financial_need}
+                onChange={e => setPreferences({ ...preferences, financial_need: e.target.checked })}
+                style={{ accentColor: "var(--accent)", width: 15, height: 15 }}
+              />
+              <span style={{ fontSize: 13, color: "var(--text-2)" }}>I have financial need (boosts scholarship ranking)</span>
+            </label>
+          </div>
+
+          <button
+            className="btn btn-primary"
+            style={{ marginTop: 8 }}
+            onClick={() => setShowGmailModal(true)}
+          >
+            Connect Gmail & Fetch Emails →
+          </button>
         </div>
       </div>
     </div>
   );
 
-  // ══════════════════════════════ STEP 2 ══════════════════════════════
+  // ── STEP 2 ─────────────────────────────────────────────────────────────────
   if (step === 2) {
     const opps = emails.filter(e => e.isOpportunity);
     const pct = Math.min((selectedEmails.length / 15) * 100, 100);
+
     return (
-      <div>
-        <Topbar>
-          <button className="btn btn-ghost" style={{marginLeft:12}} onClick={() => setStep(1)}>
-            <Back /> Back
-          </button>
-          <span style={{fontSize:12,color:"var(--text-2)"}}>
-            Profile: <strong style={{color:"var(--text)"}}>{selectedProfile?.name}</strong>
-          </span>
-        </Topbar>
+      <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
+        <Topbar step={2} onBack={() => setStep(1)} />
+        {loading && <LoadingOverlay message={loadingMsg} />}
 
         <div className="s2-layout">
-          {/* ── Sidebar ── */}
           <div className="s2-sidebar">
             <div className="sb-header">
               <h2>Inbox</h2>
-              <p>{emails.length} emails &nbsp;·&nbsp; {opps.length} opportunities</p>
+              <p>{emails.length} emails · {opps.length} opportunities detected</p>
             </div>
 
-            {/* PDF Upload */}
-            <div className="upload-zone">
-              <p>Upload a PDF email to parse</p>
-              <label className="file-label" htmlFor="pdf-input">
-                <UploadIcon /> Choose PDF
-              </label>
-              <input id="pdf-input" type="file" accept=".pdf" onChange={handleFileChange} />
-              {selectedFile && (
-                <>
-                  <div className="file-name">📄 {selectedFile.name}</div>
-                  <button className="btn btn-primary" style={{marginTop:10,fontSize:12,padding:"7px 16px"}} onClick={handlePdfUpload}>
-                    Upload &amp; Parse
-                  </button>
-                </>
-              )}
-            </div>
-
-            {/* Email list */}
             <div className="email-scroll">
               {emails.map(email => {
                 const isSel = selectedEmails.includes(email.id);
                 const isAct = previewEmail?.id === email.id;
+
                 return (
                   <div
                     key={email.id}
@@ -636,16 +650,24 @@ else {
                   >
                     <div
                       className={`e-check ${isSel ? "on" : ""}`}
-                      onClick={ev => { ev.stopPropagation(); toggleEmail(email.id, email.isOpportunity); }}
+                      onClick={ev => {
+                        ev.stopPropagation();
+                        toggleEmail(email.id, email.isOpportunity);
+                      }}
                     >
                       {isSel && <Tick />}
                     </div>
-                    <div style={{flex:1,minWidth:0}}>
+
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div className="e-title">{email.subject || email.title || "Untitled"}</div>
                       <div className="e-sub">
                         {email.isOpportunity
                           ? <span className="tag tag-green">{email.type || "Opportunity"}</span>
-                          : <span className="tag tag-red">Not an opportunity</span>}
+                          : <span className="tag tag-red">Not Opportunity</span>
+                        }
+                        {email.deadline && (
+                          <span className="tag tag-gray" style={{ fontSize: 9 }}>📅 {email.deadline}</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -653,23 +675,26 @@ else {
               })}
             </div>
 
-            {/* Footer */}
             <div className="sb-footer">
               <div className="count-bar">
-                <span className="count-txt">Selected: <span>{selectedEmails.length}</span> / 15</span>
-                <span className="count-txt" style={{fontSize:10}}>Min 5 required</span>
+                <span className="count-txt">Selected: <span>{selectedEmails.length}</span>/15</span>
+                <span className="count-txt" style={{ fontSize: 10 }}>{opps.length} opportunities</span>
               </div>
               <div className="progress-track">
-                <div className="progress-fill" style={{width:`${pct}%`}} />
+                <div className="progress-fill" style={{ width: `${pct}%` }} />
               </div>
-              <button className="btn btn-primary" style={{width:"100%",justifyContent:"center"}}
-                onClick={handleRank} disabled={selectedEmails.length < 5}>
-                Rank Opportunities →
+              <button
+                className="btn btn-primary"
+                style={{ width: "100%" }}
+                disabled={selectedEmails.length < 1}
+                onClick={handleRank}
+              >
+                Rank Selected ({selectedEmails.length}) →
               </button>
             </div>
           </div>
 
-          {/* ── Preview ── */}
+          {/* Preview pane */}
           <div className="preview-pane">
             {!previewEmail ? (
               <div className="preview-empty">
@@ -678,26 +703,49 @@ else {
               </div>
             ) : (
               <>
-                {!previewEmail.isOpportunity && (
-                  <div className="spam-bar">⚠ Not identified as an opportunity — cannot be selected for ranking.</div>
-                )}
                 <div className="prev-title">{previewEmail.subject || previewEmail.title}</div>
                 <div className="prev-tags">
-                  {previewEmail.isOpportunity && <span className="tag tag-green">{previewEmail.type || "Opportunity"}</span>}
-                  {previewEmail.organization && <span className="tag tag-gray">{previewEmail.organization}</span>}
-                  {previewEmail.deadline && <span className="tag tag-warn">⏰ {previewEmail.deadline}</span>}
+                  {previewEmail.isOpportunity
+                    ? <span className="tag tag-green">{previewEmail.type || "Opportunity"}</span>
+                    : <span className="tag tag-red">Not an Opportunity</span>
+                  }
+                  {previewEmail.organization && (
+                    <span className="tag tag-blue">{previewEmail.organization}</span>
+                  )}
+                  {previewEmail.deadline && (
+                    <span className="tag tag-warn">📅 {previewEmail.deadline}</span>
+                  )}
+                  {previewEmail.location && (
+                    <span className="tag tag-gray">📍 {previewEmail.location}</span>
+                  )}
                 </div>
-                <div className="prev-body">{previewEmail.body || "No body content."}</div>
-                {previewEmail.isOpportunity && (
-                  <div className="prev-actions">
-                    <button
-                      className={selectedEmails.includes(previewEmail.id) ? "btn btn-danger" : "btn btn-outline"}
-                      onClick={() => toggleEmail(previewEmail.id, true)}
-                    >
-                      {selectedEmails.includes(previewEmail.id) ? "✕ Remove from ranking" : "+ Add to ranking"}
-                    </button>
+
+                {previewEmail.eligibility?.length > 0 && (
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: ".1em", color: "var(--text-3)", marginBottom: 8, fontFamily: "Space Mono, monospace" }}>Eligibility</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {previewEmail.eligibility.map((e, i) => (
+                        <span key={i} className="tag tag-gray">{e}</span>
+                      ))}
+                    </div>
                   </div>
                 )}
+
+                {previewEmail.application_link && (
+                  <div style={{ marginBottom: 16 }}>
+                    <a
+                      href={previewEmail.application_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-outline"
+                      style={{ textDecoration: "none" }}
+                    >
+                      Apply Now ↗
+                    </a>
+                  </div>
+                )}
+
+                <div className="prev-body">{previewEmail.body || "No content"}</div>
               </>
             )}
           </div>
@@ -706,93 +754,101 @@ else {
     );
   }
 
-  // ══════════════════════════════ STEP 3 ══════════════════════════════
+  // ── STEP 3 ─────────────────────────────────────────────────────────────────
   return (
-    <div>
-      <Topbar>
-        <button className="btn btn-ghost" style={{marginLeft:12}} onClick={() => setStep(2)}>
-          <Back /> Back
-        </button>
-        <span style={{fontSize:12,color:"var(--text-2)"}}>
-          Ranked for: <strong style={{color:"var(--text)"}}>{selectedProfile?.name}</strong>
-        </span>
-      </Topbar>
+    <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
+      <Topbar step={3} onBack={() => setStep(2)} />
 
       <div className="s3-layout">
-        {/* ── Ranked sidebar ── */}
         <div className="s3-sidebar">
           <div className="sb-header">
-            <h2>Priority Rankings</h2>
-            <p>{rankedData?.all_ranked?.length || 0} opportunities ranked</p>
+            <h2>Ranked Opportunities</h2>
+            <p>{rankedData?.all_ranked?.length || 0} results · sorted by match score</p>
           </div>
+
           <div className="rank-scroll">
-            {rankedData?.all_ranked?.map((item, i) => {
-              const score = typeof item.score === "number" ? item.score : 0;
-              return (
-                <div key={i}
-                  className={`rank-row ${selectedResult === item ? "active" : ""}`}
-                  onClick={() => setSelectedResult(item)}
-                >
-                  <div className={`rank-num ${rankClass(i)}`}>#{i + 1}</div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div className="rank-title">{item.title}</div>
-                    <div className="rank-meta">
-                      <span className={`tag ${priorityTag(item.priority)}`}>{item.priority || "Low"}</span>
-                      {item.deadline && <span className="tag tag-gray">📅 {item.deadline}</span>}
+            {rankedData?.all_ranked?.map((item, i) => (
+              <div
+                key={i}
+                className={`rank-row ${selectedResult === item ? "active" : ""}`}
+                onClick={() => setSelectedResult(item)}
+              >
+                <div className={`rank-num ${rankClass(i)}`}>#{i + 1}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="rank-title">{item.title}</div>
+                  <div className="rank-meta">
+                    <span className={`tag ${priorityTagClass(item.priority)}`}>{item.priority}</span>
+                    {item.deadline && (
+                      <span className="tag tag-gray" style={{ fontSize: 9 }}>📅 {item.deadline}</span>
+                    )}
+                  </div>
+                  <div className="score-row">
+                    <div className="score-track">
+                      <div className="score-fill" style={{ width: `${Math.min(Math.max(item.score, 0), 100)}%` }} />
                     </div>
-                    <div className="score-row">
-                      <div className="score-track">
-                        <div className="score-fill" style={{width:`${Math.min(score,100)}%`}} />
-                      </div>
-                      <span className="score-num">{score}</span>
-                    </div>
+                    <span className="score-num">{item.score}</span>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* ── Detail pane ── */}
+        {/* Detail pane */}
         <div className="detail-pane">
           {!selectedResult ? (
             <div className="detail-empty">
               <MailIcon />
-              <p>Select a ranked opportunity to view details</p>
+              <p>Select a ranked opportunity to see details</p>
             </div>
           ) : (
             <>
               <div className="detail-title">{selectedResult.title}</div>
               <div className="detail-meta">
-                <span className={`tag ${priorityTag(selectedResult.priority)}`}>{selectedResult.priority || "Low"} Priority</span>
-                {selectedResult.score !== undefined && <span className="tag tag-green">Score: {selectedResult.score}</span>}
-                {selectedResult.deadline && <span className="tag tag-warn">⏰ {selectedResult.deadline}</span>}
+                <span className={`tag ${priorityTagClass(selectedResult.priority)}`}>{selectedResult.priority}</span>
+                <span className="tag tag-green">Score: {selectedResult.score}</span>
+                {selectedResult.type && <span className="tag tag-blue">{selectedResult.type}</span>}
+                {selectedResult.urgency && selectedResult.urgency !== "unknown" && (
+                  <span className={`tag ${selectedResult.urgency === "high" ? "tag-red" : selectedResult.urgency === "medium" ? "tag-warn" : "tag-gray"}`}>
+                    {selectedResult.urgency} urgency
+                  </span>
+                )}
               </div>
 
-              <div className="det-section">
-                <h3>Details</h3>
-                <div className="info-grid">
-                  <div className="info-cell">
-                    <div className="info-lbl">Deadline</div>
-                    <div className="info-val">{selectedResult.deadline || "—"}</div>
-                  </div>
-                  <div className="info-cell">
-                    <div className="info-lbl">Application Link</div>
-                    <div className="info-val">
-                      {selectedResult.application_link
-                        ? <a href={selectedResult.application_link} target="_blank" rel="noreferrer">{selectedResult.application_link}</a>
-                        : "—"}
-                    </div>
-                  </div>
+              {selectedResult.application_link && (
+                <div style={{ marginBottom: 28 }}>
+                  <a
+                    href={selectedResult.application_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                    style={{ textDecoration: "none" }}
+                  >
+                    Apply Now ↗
+                  </a>
                 </div>
-              </div>
+              )}
 
               {selectedResult.reasons?.length > 0 && (
                 <div className="det-section">
-                  <h3>Why This Ranks Here</h3>
+                  <h3>Why this matches you</h3>
                   <ul className="reason-list">
                     {selectedResult.reasons.map((r, i) => (
-                      <li key={i} className="reason-item"><div className="r-dot" />{r}</li>
+                      <li key={i} className="reason-item">
+                        <div className="r-dot" />
+                        {r}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {selectedResult.warnings?.length > 0 && (
+                <div className="det-section">
+                  <h3>Warnings</h3>
+                  <ul className="reason-list">
+                    {selectedResult.warnings.map((w, i) => (
+                      <li key={i} className="warn-item">⚠ {w}</li>
                     ))}
                   </ul>
                 </div>
@@ -803,7 +859,10 @@ else {
                   <h3>Action Checklist</h3>
                   <ul className="check-list">
                     {selectedResult.checklist.map((c, i) => (
-                      <li key={i} className="check-item"><span className="c-icon">☐</span>{c}</li>
+                      <li key={i} className="check-item">
+                        <span className="c-icon">☐</span>
+                        {c}
+                      </li>
                     ))}
                   </ul>
                 </div>

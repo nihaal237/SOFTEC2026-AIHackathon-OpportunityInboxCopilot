@@ -1,227 +1,41 @@
-# parser.py
-
+import os
 import json
 from groq import Groq
+from dotenv import load_dotenv
 
-# =====================================================
-# STEP 1: GROQ API KEY
-# =====================================================
+load_dotenv()
 
-client = Groq(
-    api_key=""
-)
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# Example:
-# api_key="gsk_xxxxxxxxxxxxxxxxxxxxxxxxx"
-
-
-# =====================================================
-# RULE-BASED SAFETY CHECK
-# =====================================================
 
 def force_non_opportunity(subject, body):
     text = (subject + " " + body).lower()
-
     non_opportunity_keywords = [
-        "reminder",
-        "webinar",
-        "seminar",
-        "announcement",
-        "notice",
-        "meeting",
-        "event reminder",
-        "optional attendance",
-        "attendance optional",
-        "newsletter",
-        "greetings",
-        "fyi",
-        "for your information",
-        "general notice",
-        "session tomorrow",
-        "workshop reminder"
+        "reminder", "webinar", "seminar", "announcement",
+        "notice", "meeting", "event reminder",
+        "newsletter", "otp", "verification",
+        "security alert", "password reset",
+        "promotion", "discount", "unsubscribe",
+        "your order", "invoice", "receipt", "payment",
+        "delivery", "shipped", "tracking"
     ]
-
-    for keyword in non_opportunity_keywords:
-        if keyword in text:
-            return True
-
-    return False
+    return any(kw in text for kw in non_opportunity_keywords)
 
 
-# =====================================================
-# STEP 2: PARSE SINGLE EMAIL
-# =====================================================
+def parse_email(email_data):
+    subject = email_data.get("subject", "").strip()
+    body = email_data.get("body", "").strip()
+    email_id = email_data.get("id", 0)
 
-def parse_email(email):
-    subject = email.get("subject", "").strip()
-    body = email.get("body", "").strip()
-
-    prompt = f"""
-You are an AI email parser.
-
-Analyze this email and return ONLY valid JSON.
-
-Return the opportunity type using ONLY one of these exact values:
-
-[
-  "Internship",
-  "Scholarship",
-  "Competition",
-  "Fellowship",
-  "Exchange Program",
-  "Research Assistant",
-  "Volunteer",
-  "Ambassador Program",
-  "Programming Contest",
-  "Admission",
-  "Other"
-]
-
-VERY IMPORTANT:
-
-Set "isOpportunity": true ONLY if the email is a REAL
-application-based opportunity such as:
-
-- Internship
-- Scholarship
-- Fellowship
-- Competition
-- Research Assistant
-- Exchange Program
-- Admission
-- Ambassador Program
-- Volunteer Program
-- Programming Contest
-
-Do NOT mark as opportunity for:
-
-- reminders
-- webinars
-- seminars
-- announcements
-- greetings
-- newsletters
-- optional events
-- attendance notices
-- FYI emails
-- informational emails
-
-For these, set:
-
-"isOpportunity": false
-"type": "Other"
-
-Also:
-- Use email subject as title if needed
-- NEVER leave title empty
-- Do NOT create custom type names
-
-Return ONLY this JSON format:
-
-{{
-  "id": {email["id"]},
-  "title": "{subject}",
-  "type": "",
-  "organization": "",
-  "deadline": "",
-  "eligibility": [],
-  "required_documents": [],
-  "benefits": [],
-  "application_link": "",
-  "contact_info": "",
-  "location": "",
-  "isOpportunity": true
-}}
-
-Rules:
-- Return ONLY valid JSON
-- No explanation
-- No markdown
-- No extra text
-- Use subject as fallback title
-
-Subject:
-{subject}
-
-Email Body:
-{body}
-"""
-
-    try:
-        # =================================================
-        # USE SMALLER MODEL
-        # =================================================
-
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            temperature=0
-        )
-
-        result = response.choices[0].message.content.strip()
-
-        cleaned_text = (
-            result
-            .replace("```json", "")
-            .replace("```", "")
-            .strip()
-        )
-
-        parsed_result = json.loads(cleaned_text)
-
-        # =================================================
-        # SAFETY FIXES
-        # =================================================
-
-        parsed_result["id"] = email["id"]
-        parsed_result["subject"] = subject
-        parsed_result["body"] = body
-
-        # ---------- Title fallback ----------
-
-        if not parsed_result.get("title"):
-            parsed_result["title"] = subject
-
-        # ---------- Type fallback ----------
-
-        if not parsed_result.get("type"):
-            parsed_result["type"] = "Other"
-
-        # ---------- Opportunity fallback ----------
-
-        if "isOpportunity" not in parsed_result:
-            parsed_result["isOpportunity"] = False
-
-        # =================================================
-        # STRONG RULE-BASED OVERRIDE
-        # =================================================
-
-        if force_non_opportunity(subject, body):
-            parsed_result["isOpportunity"] = False
-            parsed_result["type"] = "Other"
-
-        return parsed_result
-
-    except Exception as e:
-        print(
-            f"Error parsing Email ID {email['id']}: {str(e)}"
-        )
-
-        # =================================================
-        # SAFE FALLBACK IF API FAILS
-        # =================================================
-
+    # Fast-path: clearly not an opportunity
+    if force_non_opportunity(subject, body):
         return {
-            "id": email["id"],
+            "id": email_id,
             "title": subject,
             "subject": subject,
             "body": body,
             "type": "Other",
+            "isOpportunity": False,
             "organization": "",
             "deadline": "",
             "eligibility": [],
@@ -230,45 +44,97 @@ Email Body:
             "application_link": "",
             "contact_info": "",
             "location": "",
-            "isOpportunity": False,
-            "error": str(e)
         }
 
+    # Truncate body for prompt efficiency
+    body_snippet = body[:2000] if len(body) > 2000 else body
 
-# =====================================================
-# RUN ONLY IF DIRECTLY EXECUTED
-# =====================================================
+    prompt = f"""You are an email classifier for a student opportunity tracker.
 
-if __name__ == "__main__":
+Analyze the following email and return ONLY a valid JSON object — no markdown, no explanation, no extra text.
 
-    with open(
-        "email.json",
-        "r",
-        encoding="utf-8"
-    ) as file:
-        emails = json.load(file)
+Determine if this email is a student opportunity (internship, scholarship, fellowship, competition, exchange program, research assistant, ambassador program, programming contest, admission, volunteer program). If it is NOT an opportunity, set isOpportunity to false.
 
-    parsed_emails = []
+JSON schema to return:
+{{
+  "id": {email_id},
+  "title": <string: email subject or short descriptive title>,
+  "type": <string: one of Internship/Scholarship/Fellowship/Competition/Exchange Program/Research Assistant/Ambassador Program/Programming Contest/Admission/Volunteer/Other>,
+  "organization": <string: name of the sending organization or company>,
+  "deadline": <string: application deadline in format "DD Month YYYY" e.g. "15 July 2025", or "" if not found>,
+  "eligibility": <array of strings: CGPA requirements, skills needed, year of study, etc.>,
+  "required_documents": <array of strings: e.g. ["CV", "Transcript", "Cover Letter"]>,
+  "benefits": <array of strings: e.g. ["Stipend", "Certificate", "Mentorship"]>,
+  "application_link": <string: URL to apply, or "">,
+  "contact_info": <string: contact email or phone, or "">,
+  "location": <string: city/country or "Remote", or "">,
+  "isOpportunity": <boolean: true only if this is a real student opportunity>
+}}
 
-    for email in emails:
-        print(
-            f"Parsing Email ID: {email['id']}"
+Subject: {subject}
+
+Body:
+{body_snippet}
+
+Return ONLY the JSON object."""
+
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0,
+            max_tokens=800
         )
 
-        parsed_data = parse_email(email)
-        parsed_emails.append(parsed_data)
+        raw = response.choices[0].message.content.strip()
 
-    with open(
-        "parsed_emails.json",
-        "w",
-        encoding="utf-8"
-    ) as file:
-        json.dump(
-            parsed_emails,
-            file,
-            indent=4,
-            ensure_ascii=False
-        )
+        # Strip markdown fences if model adds them anyway
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+            raw = raw.strip()
 
-    print("\nParsing completed successfully!")
-    print("Saved to parsed_emails.json")
+        parsed = json.loads(raw)
+
+        # Ensure required fields are always present
+        parsed["id"] = email_id
+        parsed["subject"] = subject
+        parsed["body"] = body
+        parsed.setdefault("title", subject)
+        parsed.setdefault("isOpportunity", False)
+        parsed.setdefault("type", "Other")
+        parsed.setdefault("organization", "")
+        parsed.setdefault("deadline", "")
+        parsed.setdefault("eligibility", [])
+        parsed.setdefault("required_documents", [])
+        parsed.setdefault("benefits", [])
+        parsed.setdefault("application_link", "")
+        parsed.setdefault("contact_info", "")
+        parsed.setdefault("location", "")
+
+        return parsed
+
+    except json.JSONDecodeError as e:
+        print(f"JSON parse error for email {email_id}: {e}")
+        print(f"Raw response was: {raw[:300]}")
+    except Exception as e:
+        print(f"Error parsing email {email_id}: {e}")
+
+    # Fallback
+    return {
+        "id": email_id,
+        "title": subject,
+        "subject": subject,
+        "body": body,
+        "type": "Other",
+        "isOpportunity": False,
+        "organization": "",
+        "deadline": "",
+        "eligibility": [],
+        "required_documents": [],
+        "benefits": [],
+        "application_link": "",
+        "contact_info": "",
+        "location": "",
+    }
