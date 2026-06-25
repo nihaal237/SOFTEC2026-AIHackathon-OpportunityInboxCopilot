@@ -3,11 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Any
 import imaplib
-
+from fastapi import UploadFile, File
+import shutil
+import os
+from resume_parser import parse_resume
 from parser import parse_email
 from gmail_imap import fetch_gmail_imap
 from scoring_engine import rank_opportunities
-
+from cover_letter import generate_cover_letter
 app = FastAPI()
 
 # =====================================================
@@ -44,7 +47,9 @@ class RankRequest(BaseModel):
     student: StudentPreferences
     selected_emails: List[Any]
 
-
+class CoverLetterRequest(BaseModel):
+    student: dict
+    opportunity: dict
 # =====================================================
 # HOME
 # =====================================================
@@ -143,3 +148,53 @@ def rank(request: RankRequest):
             "success": False,
             "error": str(e)
         }
+
+@app.post("/generate-cover-letter")
+def cover_letter(request: CoverLetterRequest):
+
+    letter = generate_cover_letter(
+        request.student,
+        request.opportunity
+    )
+
+    return {
+        "success": True,
+        "cover_letter": letter
+    }
+
+# =====================================================
+# PARSE RESUME
+# =====================================================
+
+@app.post("/parse-resume")
+async def parse_resume_api(file: UploadFile = File(...)):
+
+    upload_folder = "uploads"
+
+    os.makedirs(upload_folder, exist_ok=True)
+
+    file_path = os.path.join(upload_folder, file.filename)
+
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    try:
+
+        profile = parse_resume(file_path)
+
+        return {
+            "success": True,
+            "profile": profile
+        }
+
+    except Exception as e:
+
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+    finally:
+
+        if os.path.exists(file_path):
+            os.remove(file_path)

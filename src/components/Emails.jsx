@@ -81,6 +81,8 @@ const injectStyles = () => {
     .btn-outline:hover { background: rgba(0,212,170,.07); border-color: var(--accent); }
     .btn-danger { background: transparent; color: var(--danger); border: 1px solid rgba(244,63,94,.35); padding: 7px 16px; }
     .btn-danger:hover { background: rgba(244,63,94,.07); }
+    .btn-secondary { background: transparent; color: var(--blue); border: 1px solid rgba(59,130,246,.4); padding: 7px 16px; }
+    .btn-secondary:hover { background: rgba(59,130,246,.07); border-color: var(--blue); }
 
     /* ── Tags ── */
     .tag { display: inline-flex; align-items: center; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; font-family: 'Space Mono', monospace; letter-spacing: .03em; }
@@ -151,6 +153,7 @@ const injectStyles = () => {
     }
     .pc-name { font-size: 17px; font-weight: 700; color: var(--text); }
     .pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .pc-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
     .pc-field { background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 10px 14px; }
     .pc-label { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); margin-bottom: 4px; font-family: 'Space Mono', monospace; }
     .pc-input {
@@ -158,8 +161,19 @@ const injectStyles = () => {
       color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif;
     }
     .pc-input::placeholder { color: var(--text-3); }
+    .pc-textarea {
+      width: 100%; background: transparent; border: none; outline: none;
+      color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif;
+      resize: none; line-height: 1.6;
+    }
+    .pc-textarea::placeholder { color: var(--text-3); }
     .pc-tags { display: flex; flex-wrap: wrap; gap: 6px; }
     .pc-section { margin-bottom: 20px; }
+    .pc-section-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--text-3); margin-bottom: 10px; font-family: 'Space Mono', monospace;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
 
     /* ══════════════════════════════ STEP 2 ══════════════════════════════ */
     .s2-layout { display: flex; height: calc(100vh - 56px); }
@@ -270,6 +284,82 @@ const injectStyles = () => {
     .warn-item { display: flex; gap: 12px; align-items: flex-start; background: rgba(244,63,94,.06); border: 1px solid rgba(244,63,94,.2); border-radius: 8px; padding: 13px 16px; font-size: 13px; color: var(--danger); line-height: 1.7; }
     .check-item { display: flex; gap: 12px; align-items: flex-start; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 13px 16px; font-size: 13px; color: var(--text-2); line-height: 1.7; }
     .c-icon { color: var(--accent); flex-shrink: 0; font-size: 15px; margin-top: 1px; }
+
+    /* ── Cover Letter ── */
+    .cover-letter-section {
+      margin-top: 32px; border-top: 1px solid var(--border); padding-top: 28px;
+    }
+    .cover-letter-section h3 {
+      font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .12em; color: var(--text-3);
+      margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .cover-letter-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .cover-letter-body {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 24px 28px; font-size: 13px; color: var(--text-2);
+      line-height: 2; white-space: pre-wrap; font-family: 'DM Sans', sans-serif;
+    }
+    .cover-letter-generating {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 28px; display: flex; align-items: center; gap: 14px;
+    }
+    .mini-spinner {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid var(--border-hi); border-top-color: var(--accent);
+      animation: spin .7s linear infinite; flex-shrink: 0;
+    }
+    .copy-toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: #000; font-size: 12px; font-weight: 700;
+      padding: 8px 20px; border-radius: 20px; font-family: 'Space Mono', monospace;
+      z-index: 700; animation: fadeInUp .2s ease;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* ── Resume Upload ── */
+    .resume-upload-zone {
+      border: 1.5px dashed var(--border-hi); border-radius: 10px;
+      padding: 20px 24px; display: flex; align-items: center; gap: 16px;
+      background: var(--surface); transition: border-color .2s, background .2s;
+      cursor: pointer; position: relative; margin-bottom: 8px;
+    }
+    .resume-upload-zone:hover { border-color: var(--accent); background: rgba(0,212,170,.03); }
+    .resume-upload-zone.parsing { border-color: var(--accent); background: rgba(0,212,170,.05); }
+    .resume-upload-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .ruz-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: rgba(0,212,170,.1); display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0; font-size: 17px;
+    }
+    .ruz-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .ruz-sub { font-size: 11px; color: var(--text-3); }
+    .ruz-badge {
+      margin-left: auto; font-size: 10px; font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--blue));
+      color: #000; padding: 3px 10px; border-radius: 20px;
+      font-family: 'Space Mono', monospace; letter-spacing: .04em; flex-shrink: 0;
+    }
+    .resume-filled-bar {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(0,212,170,.07); border: 1px solid rgba(0,212,170,.25);
+      border-radius: 8px; padding: 10px 14px; margin-bottom: 20px;
+      font-size: 12px; color: var(--accent);
+    }
+    .resume-filled-bar span { color: var(--text-2); }
+    .or-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 20px 0; color: var(--text-3); font-size: 11px;
+      font-family: 'Space Mono', monospace; letter-spacing: .08em;
+    }
+    .or-divider::before, .or-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
   `;
   document.head.appendChild(style);
 };
@@ -345,7 +435,6 @@ const GmailModal = ({ onClose, onSuccess }) => {
     setLoading(true);
 
     try {
-      // 1. Test connection
       const testRes = await fetch("http://127.0.0.1:8000/emails/gmail-imap/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -358,7 +447,6 @@ const GmailModal = ({ onClose, onSuccess }) => {
         return;
       }
 
-      // 2. Fetch emails
       const emailRes = await fetch("http://127.0.0.1:8000/emails/gmail-imap", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -449,8 +537,20 @@ const Emails = () => {
   const [selectedResult, setSelectedResult] = useState(null);
 
   const [showGmailModal, setShowGmailModal] = useState(false);
+  const [resumeParsing, setResumeParsing] = useState(false);
+  const [resumeFileName, setResumeFileName] = useState("");
 
+  // ── Cover letter state ─────────────────────────────────────────────────────
+  const [coverLetter, setCoverLetter] = useState("");
+  const [loadingLetter, setLoadingLetter] = useState(false);
+  const [copyToast, setCopyToast] = useState(false);
+
+  // ── Expanded preferences (Steps 7 & 8) ────────────────────────────────────
   const [preferences, setPreferences] = useState({
+    name: "",
+    degree: "",
+    university: "",
+    projects: "",
     cgpa: "",
     skills: "",
     preferred_types: [],
@@ -481,6 +581,52 @@ const Emails = () => {
     }
   };
 
+  // ── Resume upload & auto-fill ──────────────────────────────────────────────
+  const handleResumeUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setResumeParsing(true);
+    setResumeFileName(file.name);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/parse-resume", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        alert(data.error || "Failed to parse resume.");
+        setResumeParsing(false);
+        return;
+      }
+
+      setPreferences(prev => ({
+        ...prev,
+        name:       data.profile.name       || "",
+        degree:     data.profile.degree     || "",
+        university: data.profile.university || "",
+        cgpa:       data.profile.cgpa       || "",
+        skills: Array.isArray(data.profile.skills)
+          ? data.profile.skills.join(", ")
+          : (data.profile.skills || ""),
+        projects: Array.isArray(data.profile.projects)
+          ? data.profile.projects.join(", ")
+          : (data.profile.projects || "")
+      }));
+    } catch (err) {
+      console.log(err);
+      alert("Failed to parse resume. Is the backend running?");
+    }
+
+    setResumeParsing(false);
+  };
+
   const handleGmailSuccess = (fetchedEmails) => {
     setEmails(fetchedEmails);
     setShowGmailModal(false);
@@ -493,6 +639,10 @@ const Emails = () => {
 
     const payload = {
       student: {
+        name: preferences.name,
+        degree: preferences.degree,
+        university: preferences.university,
+        projects: preferences.projects,
         cgpa: parseFloat(preferences.cgpa) || 0,
         skills: preferences.skills.split(",").map(s => s.trim()).filter(Boolean),
         preferred_types: preferences.preferred_types,
@@ -522,6 +672,54 @@ const Emails = () => {
     setLoading(false);
   };
 
+  // ── Cover letter: generate (Steps 11–13) ──────────────────────────────────
+  const generateLetter = async (opportunity) => {
+    setCoverLetter("");
+    setLoadingLetter(true);
+
+    console.log(opportunity);
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/generate-cover-letter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          student: preferences,
+          opportunity
+        })
+      });
+
+      const data = await res.json();
+      setCoverLetter(data.cover_letter);
+    } catch (err) {
+      alert("Cannot reach backend. Is it running?");
+    }
+
+    setLoadingLetter(false);
+  };
+
+  // ── Cover letter: copy ─────────────────────────────────────────────────────
+  const handleCopy = () => {
+    navigator.clipboard.writeText(coverLetter).then(() => {
+      setCopyToast(true);
+      setTimeout(() => setCopyToast(false), 2000);
+    });
+  };
+
+  // ── Cover letter: download as .txt ────────────────────────────────────────
+  const handleDownload = () => {
+    const blob = new Blob([coverLetter], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `cover-letter-${(selectedResult?.title || "opportunity")
+      .replace(/\s+/g, "-")
+      .toLowerCase()
+      .slice(0, 40)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   // ── STEP 1 ─────────────────────────────────────────────────────────────────
   if (step === 1) return (
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
@@ -541,35 +739,103 @@ const Emails = () => {
         </div>
 
         <div className="profile-card">
-          <div className="pc-name" style={{ marginBottom: 24 }}>Student Preferences</div>
+          <div className="pc-name" style={{ marginBottom: 20 }}>👤 Student Profile</div>
 
-          <div className="pc-grid">
-            <div className="pc-field">
-              <div className="pc-label">CGPA</div>
-              <input
-                className="pc-input"
-                type="number"
-                step="0.01"
-                min="0"
-                max="4"
-                placeholder="3.50"
-                value={preferences.cgpa}
-                onChange={e => setPreferences({ ...preferences, cgpa: e.target.value })}
-              />
+          {/* ── Resume Upload (AI Auto Fill) ── */}
+          <div className={`resume-upload-zone ${resumeParsing ? "parsing" : ""}`}>
+            <input
+              type="file"
+              accept=".pdf,.docx"
+              onChange={handleResumeUpload}
+              disabled={resumeParsing}
+            />
+            <div className="ruz-icon">
+              {resumeParsing ? <div className="mini-spinner" /> : "📄"}
+            </div>
+            <div>
+              <div className="ruz-label">
+                {resumeParsing ? "Parsing resume…" : "Upload Resume"}
+              </div>
+              <div className="ruz-sub">
+                {resumeParsing
+                  ? "AI is extracting your profile fields"
+                  : "PDF or DOCX · fields auto-fill instantly"}
+              </div>
+            </div>
+            {!resumeParsing && <div className="ruz-badge">✦ AI Auto Fill</div>}
+          </div>
+
+          {/* Confirmation bar once a resume has been parsed */}
+          {resumeFileName && !resumeParsing && (
+            <div className="resume-filled-bar">
+              ✓ Filled from <span>{resumeFileName}</span> — review &amp; edit below
+            </div>
+          )}
+
+          <div className="or-divider">OR FILL MANUALLY</div>
+
+          {/* ── Personal Info ── */}
+          <div className="pc-section">
+            <div className="pc-section-label">Personal Info</div>
+            <div className="pc-grid" style={{ marginBottom: 12 }}>
+              <div className="pc-field">
+                <div className="pc-label">Full Name</div>
+                <input
+                  className="pc-input"
+                  placeholder="e.g. Ali Raza"
+                  value={preferences.name}
+                  onChange={e => setPreferences({ ...preferences, name: e.target.value })}
+                />
+              </div>
+              <div className="pc-field">
+                <div className="pc-label">Degree</div>
+                <input
+                  className="pc-input"
+                  placeholder="e.g. BS Computer Science"
+                  value={preferences.degree}
+                  onChange={e => setPreferences({ ...preferences, degree: e.target.value })}
+                />
+              </div>
             </div>
             <div className="pc-field">
-              <div className="pc-label">Location Preference</div>
+              <div className="pc-label">University</div>
               <input
                 className="pc-input"
-                placeholder="e.g. Pakistan, Remote"
-                value={preferences.location_preference}
-                onChange={e => setPreferences({ ...preferences, location_preference: e.target.value })}
+                placeholder="e.g. LUMS, NUST, IBA"
+                value={preferences.university}
+                onChange={e => setPreferences({ ...preferences, university: e.target.value })}
               />
             </div>
           </div>
 
+          {/* ── Academic Info ── */}
           <div className="pc-section">
-            <div className="pc-field">
+            <div className="pc-section-label">Academics & Skills</div>
+            <div className="pc-grid" style={{ marginBottom: 12 }}>
+              <div className="pc-field">
+                <div className="pc-label">CGPA</div>
+                <input
+                  className="pc-input"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="4"
+                  placeholder="3.50"
+                  value={preferences.cgpa}
+                  onChange={e => setPreferences({ ...preferences, cgpa: e.target.value })}
+                />
+              </div>
+              <div className="pc-field">
+                <div className="pc-label">Location Preference</div>
+                <input
+                  className="pc-input"
+                  placeholder="e.g. Pakistan, Remote"
+                  value={preferences.location_preference}
+                  onChange={e => setPreferences({ ...preferences, location_preference: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="pc-field" style={{ marginBottom: 12 }}>
               <div className="pc-label">Skills (comma separated)</div>
               <input
                 className="pc-input"
@@ -578,25 +844,36 @@ const Emails = () => {
                 onChange={e => setPreferences({ ...preferences, skills: e.target.value })}
               />
             </div>
-          </div>
-
-          <div className="pc-section">
-            <div className="pc-label" style={{ marginBottom: 10 }}>Preferred Opportunity Types</div>
-            <div className="pc-tags">
-              {opportunityTypes.map(type => (
-                <span
-                  key={type}
-                  className={`tag ${preferences.preferred_types.includes(type) ? "tag-green" : "tag-gray"}`}
-                  style={{ cursor: "pointer", padding: "5px 12px", fontSize: 11 }}
-                  onClick={() => toggleType(type)}
-                >
-                  {type}
-                </span>
-              ))}
+            <div className="pc-field">
+              <div className="pc-label">Projects / Experience</div>
+              <textarea
+                className="pc-textarea"
+                rows={3}
+                placeholder="Briefly describe your key projects or work experience — this helps personalise your cover letter."
+                value={preferences.projects}
+                onChange={e => setPreferences({ ...preferences, projects: e.target.value })}
+              />
             </div>
           </div>
 
+          {/* ── Opportunity Preferences ── */}
           <div className="pc-section">
+            <div className="pc-section-label">Opportunity Preferences</div>
+            <div style={{ marginBottom: 12 }}>
+              <div className="pc-label" style={{ marginBottom: 10 }}>Preferred Types</div>
+              <div className="pc-tags">
+                {opportunityTypes.map(type => (
+                  <span
+                    key={type}
+                    className={`tag ${preferences.preferred_types.includes(type) ? "tag-green" : "tag-gray"}`}
+                    style={{ cursor: "pointer", padding: "5px 12px", fontSize: 11 }}
+                    onClick={() => toggleType(type)}
+                  >
+                    {type}
+                  </span>
+                ))}
+              </div>
+            </div>
             <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
               <input
                 type="checkbox"
@@ -759,6 +1036,9 @@ const Emails = () => {
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <Topbar step={3} onBack={() => setStep(2)} />
 
+      {/* Copy toast */}
+      {copyToast && <div className="copy-toast">✓ Copied to clipboard</div>}
+
       <div className="s3-layout">
         <div className="s3-sidebar">
           <div className="sb-header">
@@ -771,7 +1051,10 @@ const Emails = () => {
               <div
                 key={i}
                 className={`rank-row ${selectedResult === item ? "active" : ""}`}
-                onClick={() => setSelectedResult(item)}
+                onClick={() => {
+                  setSelectedResult(item);
+                  setCoverLetter("");   // reset letter when switching opportunity
+                }}
               >
                 <div className={`rank-num ${rankClass(i)}`}>#{i + 1}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -815,8 +1098,9 @@ const Emails = () => {
                 )}
               </div>
 
-              {selectedResult.application_link && (
-                <div style={{ marginBottom: 28 }}>
+              {/* ── Action buttons (Steps 9 & 14) ── */}
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 28 }}>
+                {selectedResult.application_link && (
                   <a
                     href={selectedResult.application_link}
                     target="_blank"
@@ -826,8 +1110,20 @@ const Emails = () => {
                   >
                     Apply Now ↗
                   </a>
-                </div>
-              )}
+                )}
+                <button
+                  className="btn btn-outline"
+                  disabled={loadingLetter}
+                  onClick={() => {
+                    const originalEmail = emails.find(
+                      e => e.title === selectedResult.title
+                    );
+                    generateLetter(originalEmail || selectedResult);
+                  }}
+                >
+                  {loadingLetter ? "Generating…" : "✦ Generate Cover Letter"}
+                </button>
+              </div>
 
               {selectedResult.reasons?.length > 0 && (
                 <div className="det-section">
@@ -865,6 +1161,44 @@ const Emails = () => {
                       </li>
                     ))}
                   </ul>
+                </div>
+              )}
+
+              {/* ── Cover Letter section (Steps 15 & 16) ── */}
+              {(loadingLetter || coverLetter) && (
+                <div className="cover-letter-section">
+                  <h3>Generated Cover Letter</h3>
+
+                  {loadingLetter ? (
+                    <div className="cover-letter-generating">
+                      <div className="mini-spinner" />
+                      <span style={{ fontSize: 13, color: "var(--text-2)" }}>Writing your cover letter…</span>
+                    </div>
+                  ) : (
+                    <>
+                      {/* ── Step 16: Copy / Download / Regenerate ── */}
+                      <div className="cover-letter-actions">
+                        <button className="btn btn-ghost" onClick={handleCopy}>
+                          ⎘ Copy
+                        </button>
+                        <button className="btn btn-secondary" onClick={handleDownload}>
+                          ↓ Download .txt
+                        </button>
+                        <button
+                          className="btn btn-outline"
+                          onClick={() => {
+                            const originalEmail = emails.find(
+                              e => e.title === selectedResult.title
+                            );
+                            generateLetter(originalEmail || selectedResult);
+                          }}
+                        >
+                          ↺ Regenerate
+                        </button>
+                      </div>
+                      <div className="cover-letter-body">{coverLetter}</div>
+                    </>
+                  )}
                 </div>
               )}
             </>

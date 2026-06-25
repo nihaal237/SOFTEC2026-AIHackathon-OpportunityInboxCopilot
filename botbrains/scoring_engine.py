@@ -128,7 +128,10 @@ def calculate_score(student, opportunity):
             score += 10
             reasons.append("Location match")
 
-    if student["financial_need"] and opportunity_type.lower() == "scholarship":
+    if (
+        student["financial_need"]
+        and opportunity_type.lower() == "scholarship"
+    ):
         score += 15
         reasons.append("Financial support match")
 
@@ -144,23 +147,26 @@ def rank_opportunities(student, emails):
     results = []
 
     for email in emails:
+
         if not email.get("isOpportunity", False):
             continue
 
         score_data = calculate_score(student, email)
 
-        results.append({
-            "title": email.get("title", ""),
-            "type": email.get("type", ""),
-            "deadline": email.get("deadline", ""),
-            "application_link": email.get("application_link", ""),
-            "score": score_data["score"],
-            "urgency": score_data["urgency"],
-            "reasons": score_data["reasons"],
-            "warnings": score_data["warnings"],
-            "priority": get_priority_label(score_data["score"]),
-            "checklist": generate_checklist(email)
-        })
+        # Keep ALL original email fields
+        ranked_email = email.copy()
+
+        # Add AI ranking information
+        ranked_email["score"] = score_data["score"]
+        ranked_email["urgency"] = score_data["urgency"]
+        ranked_email["reasons"] = score_data["reasons"]
+        ranked_email["warnings"] = score_data["warnings"]
+        ranked_email["priority"] = get_priority_label(
+            score_data["score"]
+        )
+        ranked_email["checklist"] = generate_checklist(email)
+
+        results.append(ranked_email)
 
     results.sort(
         key=lambda x: x["score"],
