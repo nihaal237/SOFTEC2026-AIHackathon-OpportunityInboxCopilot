@@ -137,24 +137,35 @@ const injectStyles = () => {
     .loading-text { font-size: 14px; color: var(--text-2); font-family: 'Space Mono', monospace; }
 
     /* ══════════════════════════════ STEP 1 ══════════════════════════════ */
-    .s1-wrap { max-width: 900px; margin: 0 auto; padding: 56px 24px; }
-    .s1-hero { margin-bottom: 48px; }
+    .s1-wrap {
+      height: calc(100vh - 56px);
+      max-width: 1180px; margin: 0 auto;
+      padding: 18px 28px 22px;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .s1-hero { margin-bottom: 14px; flex-shrink: 0; }
     .s1-hero h1 {
       font-family: 'Space Mono', monospace;
-      font-size: 32px; font-weight: 700; line-height: 1.25;
-      color: var(--text); margin-bottom: 10px;
+      font-size: 19px; font-weight: 700; line-height: 1.3;
+      color: var(--text); margin-bottom: 4px;
     }
     .s1-hero h1 span { color: var(--accent); }
-    .s1-hero p { color: var(--text-2); font-size: 14px; line-height: 1.8; max-width: 480px; }
+    .s1-hero p { color: var(--text-2); font-size: 12px; line-height: 1.5; max-width: 560px; }
 
     .profile-card {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 28px;
+      border-radius: 12px; padding: 20px 26px;
+      flex: 1; min-height: 0;
+      display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 30px;
+      overflow: hidden;
     }
+    .pc-col { display: flex; flex-direction: column; min-height: 0; }
+    .pc-submit { margin-top: auto; }
     .pc-name { font-size: 17px; font-weight: 700; color: var(--text); }
-    .pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .pc-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .pc-field { background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 10px 14px; }
+    .pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .pc-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .pc-field { background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 8px 12px; }
     .pc-label { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); margin-bottom: 4px; font-family: 'Space Mono', monospace; }
     .pc-input {
       width: 100%; background: transparent; border: none; outline: none;
@@ -164,15 +175,15 @@ const injectStyles = () => {
     .pc-textarea {
       width: 100%; background: transparent; border: none; outline: none;
       color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif;
-      resize: none; line-height: 1.6;
+      resize: none; line-height: 1.5;
     }
     .pc-textarea::placeholder { color: var(--text-3); }
     .pc-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-    .pc-section { margin-bottom: 20px; }
+    .pc-section { margin-bottom: 12px; }
     .pc-section-label {
       font-size: 10px; text-transform: uppercase; letter-spacing: .1em;
-      color: var(--text-3); margin-bottom: 10px; font-family: 'Space Mono', monospace;
-      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+      color: var(--text-3); margin-bottom: 8px; font-family: 'Space Mono', monospace;
+      padding-bottom: 6px; border-bottom: 1px solid var(--border);
     }
 
     /* ══════════════════════════════ STEP 2 ══════════════════════════════ */
@@ -323,9 +334,9 @@ const injectStyles = () => {
     /* ── Resume Upload ── */
     .resume-upload-zone {
       border: 1.5px dashed var(--border-hi); border-radius: 10px;
-      padding: 20px 24px; display: flex; align-items: center; gap: 16px;
+      padding: 13px 16px; display: flex; align-items: center; gap: 12px;
       background: var(--surface); transition: border-color .2s, background .2s;
-      cursor: pointer; position: relative; margin-bottom: 8px;
+      cursor: pointer; position: relative; margin-bottom: 6px;
     }
     .resume-upload-zone:hover { border-color: var(--accent); background: rgba(0,212,170,.03); }
     .resume-upload-zone.parsing { border-color: var(--accent); background: rgba(0,212,170,.05); }
@@ -333,12 +344,12 @@ const injectStyles = () => {
       position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
     }
     .ruz-icon {
-      width: 36px; height: 36px; border-radius: 8px;
+      width: 30px; height: 30px; border-radius: 8px;
       background: rgba(0,212,170,.1); display: flex; align-items: center;
-      justify-content: center; flex-shrink: 0; font-size: 17px;
+      justify-content: center; flex-shrink: 0; font-size: 15px;
     }
-    .ruz-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-    .ruz-sub { font-size: 11px; color: var(--text-3); }
+    .ruz-label { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .ruz-sub { font-size: 10px; color: var(--text-3); }
     .ruz-badge {
       margin-left: auto; font-size: 10px; font-weight: 700;
       background: linear-gradient(135deg, var(--accent), var(--blue));
@@ -348,13 +359,13 @@ const injectStyles = () => {
     .resume-filled-bar {
       display: flex; align-items: center; gap: 10px;
       background: rgba(0,212,170,.07); border: 1px solid rgba(0,212,170,.25);
-      border-radius: 8px; padding: 10px 14px; margin-bottom: 20px;
-      font-size: 12px; color: var(--accent);
+      border-radius: 8px; padding: 7px 12px; margin-bottom: 10px;
+      font-size: 11px; color: var(--accent);
     }
     .resume-filled-bar span { color: var(--text-2); }
     .or-divider {
       display: flex; align-items: center; gap: 12px;
-      margin: 20px 0; color: var(--text-3); font-size: 11px;
+      margin: 10px 0; color: var(--text-3); font-size: 10px;
       font-family: 'Space Mono', monospace; letter-spacing: .08em;
     }
     .or-divider::before, .or-divider::after {
@@ -734,164 +745,168 @@ const Emails = () => {
 
       <div className="s1-wrap">
         <div className="s1-hero">
-          <h1>Opportunity<br /><span>Inbox Copilot</span></h1>
-          <p>Connect your Gmail and set your preferences. The AI will scan your inbox, identify opportunities, and rank them for you.</p>
+          <h1>Opportunity <span>Inbox Copilot</span></h1>
+          <p>Connect your Gmail and set your preferences — the AI will scan your inbox, identify opportunities, and rank them for you.</p>
         </div>
 
         <div className="profile-card">
-          <div className="pc-name" style={{ marginBottom: 20 }}>👤 Student Profile</div>
+          <div className="pc-name" style={{ gridColumn: "1 / -1", marginBottom: 4 }}>👤 Student Profile</div>
 
-          {/* ── Resume Upload (AI Auto Fill) ── */}
-          <div className={`resume-upload-zone ${resumeParsing ? "parsing" : ""}`}>
-            <input
-              type="file"
-              accept=".pdf,.docx"
-              onChange={handleResumeUpload}
-              disabled={resumeParsing}
-            />
-            <div className="ruz-icon">
-              {resumeParsing ? <div className="mini-spinner" /> : "📄"}
-            </div>
-            <div>
-              <div className="ruz-label">
-                {resumeParsing ? "Parsing resume…" : "Upload Resume"}
-              </div>
-              <div className="ruz-sub">
-                {resumeParsing
-                  ? "AI is extracting your profile fields"
-                  : "PDF or DOCX · fields auto-fill instantly"}
-              </div>
-            </div>
-            {!resumeParsing && <div className="ruz-badge">✦ AI Auto Fill</div>}
-          </div>
-
-          {/* Confirmation bar once a resume has been parsed */}
-          {resumeFileName && !resumeParsing && (
-            <div className="resume-filled-bar">
-              ✓ Filled from <span>{resumeFileName}</span> — review &amp; edit below
-            </div>
-          )}
-
-          <div className="or-divider">OR FILL MANUALLY</div>
-
-          {/* ── Personal Info ── */}
-          <div className="pc-section">
-            <div className="pc-section-label">Personal Info</div>
-            <div className="pc-grid" style={{ marginBottom: 12 }}>
-              <div className="pc-field">
-                <div className="pc-label">Full Name</div>
-                <input
-                  className="pc-input"
-                  placeholder="e.g. Ali Raza"
-                  value={preferences.name}
-                  onChange={e => setPreferences({ ...preferences, name: e.target.value })}
-                />
-              </div>
-              <div className="pc-field">
-                <div className="pc-label">Degree</div>
-                <input
-                  className="pc-input"
-                  placeholder="e.g. BS Computer Science"
-                  value={preferences.degree}
-                  onChange={e => setPreferences({ ...preferences, degree: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="pc-field">
-              <div className="pc-label">University</div>
+          {/* ── LEFT COLUMN: resume upload + opportunity prefs + submit ── */}
+          <div className="pc-col">
+            {/* ── Resume Upload (AI Auto Fill) ── */}
+            <div className={`resume-upload-zone ${resumeParsing ? "parsing" : ""}`}>
               <input
-                className="pc-input"
-                placeholder="e.g. LUMS, NUST, IBA"
-                value={preferences.university}
-                onChange={e => setPreferences({ ...preferences, university: e.target.value })}
+                type="file"
+                accept=".pdf,.docx"
+                onChange={handleResumeUpload}
+                disabled={resumeParsing}
               />
+              <div className="ruz-icon">
+                {resumeParsing ? <div className="mini-spinner" /> : "📄"}
+              </div>
+              <div>
+                <div className="ruz-label">
+                  {resumeParsing ? "Parsing resume…" : "Upload Resume"}
+                </div>
+                <div className="ruz-sub">
+                  {resumeParsing
+                    ? "AI is extracting your profile fields"
+                    : "PDF or DOCX · fields auto-fill instantly"}
+                </div>
+              </div>
+              {!resumeParsing && <div className="ruz-badge">✦ AI Auto Fill</div>}
             </div>
+
+            {/* Confirmation bar once a resume has been parsed */}
+            {resumeFileName && !resumeParsing && (
+              <div className="resume-filled-bar">
+                ✓ Filled from <span>{resumeFileName}</span> — review &amp; edit
+              </div>
+            )}
+
+            <div className="or-divider">OR FILL MANUALLY</div>
+
+            {/* ── Opportunity Preferences ── */}
+            <div className="pc-section">
+              <div className="pc-section-label">Opportunity Preferences</div>
+              <div style={{ marginBottom: 10 }}>
+                <div className="pc-tags">
+                  {opportunityTypes.map(type => (
+                    <span
+                      key={type}
+                      className={`tag ${preferences.preferred_types.includes(type) ? "tag-green" : "tag-gray"}`}
+                      style={{ cursor: "pointer", padding: "4px 10px", fontSize: 10 }}
+                      onClick={() => toggleType(type)}
+                    >
+                      {type}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <label style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={preferences.financial_need}
+                  onChange={e => setPreferences({ ...preferences, financial_need: e.target.checked })}
+                  style={{ accentColor: "var(--accent)", width: 14, height: 14 }}
+                />
+                <span style={{ fontSize: 12, color: "var(--text-2)" }}>I have financial need (boosts scholarship ranking)</span>
+              </label>
+            </div>
+
+            <button
+              className="btn btn-primary pc-submit"
+              onClick={() => setShowGmailModal(true)}
+            >
+              Connect Gmail & Fetch Emails →
+            </button>
           </div>
 
-          {/* ── Academic Info ── */}
-          <div className="pc-section">
-            <div className="pc-section-label">Academics & Skills</div>
-            <div className="pc-grid" style={{ marginBottom: 12 }}>
+          {/* ── RIGHT COLUMN: text fields ── */}
+          <div className="pc-col">
+            {/* ── Personal Info ── */}
+            <div className="pc-section">
+              <div className="pc-section-label">Personal Info</div>
+              <div className="pc-grid">
+                <div className="pc-field">
+                  <div className="pc-label">Full Name</div>
+                  <input
+                    className="pc-input"
+                    placeholder="e.g. Ali Raza"
+                    value={preferences.name}
+                    onChange={e => setPreferences({ ...preferences, name: e.target.value })}
+                  />
+                </div>
+                <div className="pc-field">
+                  <div className="pc-label">Degree</div>
+                  <input
+                    className="pc-input"
+                    placeholder="e.g. BS Computer Science"
+                    value={preferences.degree}
+                    onChange={e => setPreferences({ ...preferences, degree: e.target.value })}
+                  />
+                </div>
+              </div>
               <div className="pc-field">
-                <div className="pc-label">CGPA</div>
+                <div className="pc-label">University</div>
                 <input
                   className="pc-input"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max="4"
-                  placeholder="3.50"
-                  value={preferences.cgpa}
-                  onChange={e => setPreferences({ ...preferences, cgpa: e.target.value })}
+                  placeholder="e.g. LUMS, NUST, IBA"
+                  value={preferences.university}
+                  onChange={e => setPreferences({ ...preferences, university: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* ── Academic Info ── */}
+            <div className="pc-section">
+              <div className="pc-section-label">Academics & Skills</div>
+              <div className="pc-grid">
+                <div className="pc-field">
+                  <div className="pc-label">CGPA</div>
+                  <input
+                    className="pc-input"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="4"
+                    placeholder="3.50"
+                    value={preferences.cgpa}
+                    onChange={e => setPreferences({ ...preferences, cgpa: e.target.value })}
+                  />
+                </div>
+                <div className="pc-field">
+                  <div className="pc-label">Location Preference</div>
+                  <input
+                    className="pc-input"
+                    placeholder="e.g. Pakistan, Remote"
+                    value={preferences.location_preference}
+                    onChange={e => setPreferences({ ...preferences, location_preference: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="pc-field" style={{ marginBottom: 10 }}>
+                <div className="pc-label">Skills (comma separated)</div>
+                <input
+                  className="pc-input"
+                  placeholder="React, Python, Machine Learning"
+                  value={preferences.skills}
+                  onChange={e => setPreferences({ ...preferences, skills: e.target.value })}
                 />
               </div>
               <div className="pc-field">
-                <div className="pc-label">Location Preference</div>
-                <input
-                  className="pc-input"
-                  placeholder="e.g. Pakistan, Remote"
-                  value={preferences.location_preference}
-                  onChange={e => setPreferences({ ...preferences, location_preference: e.target.value })}
+                <div className="pc-label">Projects / Experience</div>
+                <textarea
+                  className="pc-textarea"
+                  rows={2}
+                  placeholder="Briefly describe your key projects — helps personalise your cover letter."
+                  value={preferences.projects}
+                  onChange={e => setPreferences({ ...preferences, projects: e.target.value })}
                 />
               </div>
             </div>
-            <div className="pc-field" style={{ marginBottom: 12 }}>
-              <div className="pc-label">Skills (comma separated)</div>
-              <input
-                className="pc-input"
-                placeholder="React, Python, Machine Learning"
-                value={preferences.skills}
-                onChange={e => setPreferences({ ...preferences, skills: e.target.value })}
-              />
-            </div>
-            <div className="pc-field">
-              <div className="pc-label">Projects / Experience</div>
-              <textarea
-                className="pc-textarea"
-                rows={3}
-                placeholder="Briefly describe your key projects or work experience — this helps personalise your cover letter."
-                value={preferences.projects}
-                onChange={e => setPreferences({ ...preferences, projects: e.target.value })}
-              />
-            </div>
           </div>
-
-          {/* ── Opportunity Preferences ── */}
-          <div className="pc-section">
-            <div className="pc-section-label">Opportunity Preferences</div>
-            <div style={{ marginBottom: 12 }}>
-              <div className="pc-label" style={{ marginBottom: 10 }}>Preferred Types</div>
-              <div className="pc-tags">
-                {opportunityTypes.map(type => (
-                  <span
-                    key={type}
-                    className={`tag ${preferences.preferred_types.includes(type) ? "tag-green" : "tag-gray"}`}
-                    style={{ cursor: "pointer", padding: "5px 12px", fontSize: 11 }}
-                    onClick={() => toggleType(type)}
-                  >
-                    {type}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
-              <input
-                type="checkbox"
-                checked={preferences.financial_need}
-                onChange={e => setPreferences({ ...preferences, financial_need: e.target.checked })}
-                style={{ accentColor: "var(--accent)", width: 15, height: 15 }}
-              />
-              <span style={{ fontSize: 13, color: "var(--text-2)" }}>I have financial need (boosts scholarship ranking)</span>
-            </label>
-          </div>
-
-          <button
-            className="btn btn-primary"
-            style={{ marginTop: 8 }}
-            onClick={() => setShowGmailModal(true)}
-          >
-            Connect Gmail & Fetch Emails →
-          </button>
         </div>
       </div>
     </div>
