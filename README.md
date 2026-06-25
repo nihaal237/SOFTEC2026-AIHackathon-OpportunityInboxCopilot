@@ -1,18 +1,37 @@
-# React + Vite
+# Opportunity Inbox Copilot
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### SOFTEC 2026 AI Hackathon Submission
 
-Currently, two official plugins are available:
+Opportunity Inbox Copilot is an AI-powered system that helps students discover and prioritize valuable opportunities hidden in their inboxes.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The platform analyzes emails related to scholarships, internships, competitions, fellowships, and admissions, extracts key information such as deadlines, eligibility criteria, required documents, and application links, then ranks opportunities based on a student's profile, interests, and urgency.
 
-## React Compiler
+## Features
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+* Opportunity email detection
+* Information extraction (deadlines, eligibility, documents, contacts)
+* Student profile matching
+* Personalized opportunity ranking
+* Urgency scoring
+* Actionable next-step recommendations
 
-Note: This will impact Vite dev & build performances.
+## Tech Stack
 
-## Expanding the ESLint configuration
+* Frontend: React / Next.js
+* Backend: FastAPI / Flask
+* AI: OpenAI API, NLP
+* Database: JSON / SQLite
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Workflow
+
+1. Upload opportunity emails
+2. Provide student profile
+3. Extract opportunity details
+4. Match against profile
+5. Generate ranked recommendations with explanations
+
+## Goal
+
+Help students focus on the opportunities that matter most by transforming cluttered inboxes into clear, prioritized action plans.
+
+**Built for SOFTEC 2026 AI Hackathon 🚀**
